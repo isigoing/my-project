@@ -14,4 +14,5 @@ main = do
     putStrLn ("  -------- Your " ++ show input ++ "x" ++ show input ++ " Playground is now being generated.")
     playground <- initiatePlayground input
     print (getMatrix playground)
-    putStrLn "  -------- Thanks for playing!"
+    playerOnesTurn playground
+    putStrLn "  -------- Thanks for playeeeing!"

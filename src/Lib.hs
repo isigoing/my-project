@@ -56,8 +56,9 @@ playerOnesTurn playground = do
     hSetBuffering stdout NoBuffering
     putStrLn("  -------- Player 1's Turn: ")
     input <- getLine
-    let pg = inputHandler playground input
+    let pg = inputHandler playground 1 input
     print (getMatrix pg)
+    checkForWinner pg
     let decision = decider (getGameStatus pg)
     if decision == "p1"
         then putStrLn("Player 1 Wins....")
@@ -71,8 +72,9 @@ playerTwosTurn playground = do
     hSetBuffering stdout NoBuffering
     putStrLn("  -------- Player 2's Turn: ")
     input <- getLine
-    let pg = inputHandler playground input
+    let pg = inputHandler playground 2 input
     print (getMatrix pg)
+    checkForWinner pg
     let decision = decider (getGameStatus pg)
     if decision == "p2"
         then putStrLn("Player 2 Wins....")
@@ -81,8 +83,32 @@ playerTwosTurn playground = do
     else playerOnesTurn pg
 
 
-inputHandler :: Playground -> String -> Playground
-inputHandler playground input = playground
+inputHandler :: Playground -> Int -> String -> Playground
+inputHandler playground playerSign input = pg where
+    list = words input
+    valuesAsInt =  map (read::String->Int) list
+    pg = enterInput playground playerSign (valuesAsInt!!0,valuesAsInt!!1)
+
+
+enterInput :: Playground ->Int -> (Int,Int) -> Playground
+enterInput playground playerSign (x,y) = pg where
+    newPg = if (getElem x y (getMatrix playground)) == 0
+                then setElem playerSign (x,y) (getMatrix playground)
+                else getMatrix playground
+    pg = Playground newPg (getSize playground) (getSolutionSize playground) (getGameStatus playground)
+
+checkForWinner :: Playground -> Playground
+checkForWinner playground = pg where
+    pg = playground
+
+checker :: Playground -> Int -> Int -> (x,y) -> Playground
+checker playground playerSign counter (x,y)
+    | counter == 0 = Playground playground
+    | otherwise = checker playground playerSign = new
+    where
+        counter = counter-1
+
+
 
 decider :: Int -> String
 decider status
@@ -90,7 +116,6 @@ decider status
     | status == 2 = "p2"
     | status == 3 = "draw"
     | otherwise = "continue"
-
 
 
 someFunc :: IO ()
