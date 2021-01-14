@@ -2,6 +2,8 @@ module Lib where
 
 import System.IO (hSetBuffering, BufferMode(NoBuffering), stdout)
 import Data.Matrix
+import Data.List
+import Data.Bool
 
 ------------------------------------------------------------
 -- Data
@@ -66,6 +68,8 @@ playerOnesTurn playground = do
     input <- getLine
     let pg = inputHandler playground 1 input
     print (getMatrix pg)
+    print (getPlayerOneList pg)
+    print (getPlayerTwoList pg)
     let pg2 = checkForWinner pg
     let decision = decider (getGameStatus pg)
     if decision == "p1"
@@ -82,6 +86,8 @@ playerTwosTurn playground = do
     input <- getLine
     let pg = inputHandler playground 2 input
     print (getMatrix pg)
+    print (getPlayerOneList pg)
+    print (getPlayerTwoList pg)
     let pg2 = checkForWinner pg
     let decision = decider (getGameStatus pg)
     if decision == "p2"
@@ -101,11 +107,13 @@ inputHandler playground playerSign input = pg where
 enterInput :: Playground -> Int -> (Int,Int) -> Playground
 enterInput playground playerSign (x,y) = pg where
     newPg = if (getElem x y (getMatrix playground)) == 0
-                then setElem playerSign (x,y) (getMatrix playground)
+                then setElem playerSign (x,y) (getMatrix playground) -- AUFPASSEN XY
                 else getMatrix playground
     newPlayerList = decidePlayerList playground playerSign (x,y)
-    pg = Playground newPg (getSize playground) (getSolutionSize playground) (getGameStatus playground) (getPlayerOneList playground) (getPlayerTwoList playground)
-
+    pg = if playerSign == 1
+            then Playground newPg (getSize playground) (getSolutionSize playground) (getGameStatus playground) newPlayerList (getPlayerTwoList playground)
+            else Playground newPg (getSize playground) (getSolutionSize playground) (getGameStatus playground) (getPlayerOneList playground) newPlayerList
+    
 
 
 
@@ -117,7 +125,8 @@ decidePlayerList playground playerSign (x,y)
     | (playerSign == 2 && (getElem x y (getMatrix playground)) /= 0) = (getPlayerTwoList playground)
 
 checkForWinner :: Playground -> Playground
-checkForWinner playground = playground
+checkForWinner playground = pg where
+    pg = playground
 
 
 decider :: Int -> String
@@ -134,3 +143,10 @@ someFunc = putStrLn "Hello World"
 
 anotherFunc :: IO ()
 anotherFunc = putStrLn "This is just another test"
+
+checkForNeighbourAboveAndBelow :: [(Int,Int)]-> (x,y) -> Int
+checkForNeighbourAboveAndBelow list value = r where
+    aboveList = filter (\x -> snd x > (snd value)) list
+    belowList = filter (\x -> snd x < (snd value)) list
+    fullList = belowList ++ [value] ++ aboveList
+    r = 42
