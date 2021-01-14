@@ -12,6 +12,8 @@ data Playground = Playground {
    ,size :: Int -- ^ Size of the Playground.
    ,solutionSize :: Int -- ^ Number of Playstones in a row needed to win.
    ,gameStatus :: Int -- ^ Value to determine if game is over.
+   ,playerOneList :: [(Int,Int)] -- ^ List with all Values of PlayerOne.
+   ,playerTwoList :: [(Int,Int)] -- ^ List with all Values of PlayerTwo.
 } deriving(Eq,Show)
 
 
@@ -20,16 +22,22 @@ data Playground = Playground {
 ------------------------------------------------------------
 
 getMatrix :: Playground -> Matrix Int
-getMatrix (Playground m _ _ _) = m
+getMatrix (Playground m _ _ _ _ _) = m
 
 getSize :: Playground -> Int
-getSize (Playground _ s _ _) = s
+getSize (Playground _ s _ _ _ _) = s
 
 getSolutionSize :: Playground -> Int
-getSolutionSize (Playground _ _ s _) = s
+getSolutionSize (Playground _ _ s _ _ _) = s
 
 getGameStatus :: Playground -> Int
-getGameStatus (Playground _ _ _ s) = s
+getGameStatus (Playground _ _ _ s _ _) = s
+
+getPlayerOneList :: Playground -> [(Int,Int)]
+getPlayerOneList (Playground _ _ _ _ l _) = l
+
+getPlayerTwoList :: Playground -> [(Int,Int)]
+getPlayerTwoList (Playground _ _ _ _ _ l) = l
 
 ------------------------------------------------------------
 -- Functions and Procedures
@@ -42,7 +50,7 @@ generateEmptyMatrix size = zero size size
 initiatePlayground :: Int -> IO Playground
 initiatePlayground size = do
     let empty = generateEmptyMatrix size
-    let pg = Playground empty size size 0
+    let pg = Playground empty size size 0 [] []
     return pg
 
 
@@ -58,7 +66,7 @@ playerOnesTurn playground = do
     input <- getLine
     let pg = inputHandler playground 1 input
     print (getMatrix pg)
-    checkForWinner pg
+    let pg2 = checkForWinner pg
     let decision = decider (getGameStatus pg)
     if decision == "p1"
         then putStrLn("Player 1 Wins....")
@@ -74,7 +82,7 @@ playerTwosTurn playground = do
     input <- getLine
     let pg = inputHandler playground 2 input
     print (getMatrix pg)
-    checkForWinner pg
+    let pg2 = checkForWinner pg
     let decision = decider (getGameStatus pg)
     if decision == "p2"
         then putStrLn("Player 2 Wins....")
@@ -90,24 +98,26 @@ inputHandler playground playerSign input = pg where
     pg = enterInput playground playerSign (valuesAsInt!!0,valuesAsInt!!1)
 
 
-enterInput :: Playground ->Int -> (Int,Int) -> Playground
+enterInput :: Playground -> Int -> (Int,Int) -> Playground
 enterInput playground playerSign (x,y) = pg where
     newPg = if (getElem x y (getMatrix playground)) == 0
                 then setElem playerSign (x,y) (getMatrix playground)
                 else getMatrix playground
-    pg = Playground newPg (getSize playground) (getSolutionSize playground) (getGameStatus playground)
+    newPlayerList = decidePlayerList playground playerSign (x,y)
+    pg = Playground newPg (getSize playground) (getSolutionSize playground) (getGameStatus playground) (getPlayerOneList playground) (getPlayerTwoList playground)
+
+
+
+
+decidePlayerList :: Playground -> Int -> (Int,Int) -> [(Int,Int)]
+decidePlayerList playground playerSign (x,y)
+    | (playerSign == 1 && (getElem x y (getMatrix playground)) == 0) = (getPlayerOneList playground) ++ [(x,y)]
+    | (playerSign == 2 && (getElem x y (getMatrix playground)) == 0) = (getPlayerTwoList playground) ++ [(x,y)]
+    | (playerSign == 1 && (getElem x y (getMatrix playground)) /= 0) = (getPlayerOneList playground)
+    | (playerSign == 2 && (getElem x y (getMatrix playground)) /= 0) = (getPlayerTwoList playground)
 
 checkForWinner :: Playground -> Playground
-checkForWinner playground = pg where
-    pg = playground
-
-checker :: Playground -> Int -> Int -> (x,y) -> Playground
-checker playground playerSign counter (x,y)
-    | counter == 0 = Playground playground
-    | otherwise = checker playground playerSign = new
-    where
-        counter = counter-1
-
+checkForWinner playground = playground
 
 
 decider :: Int -> String
