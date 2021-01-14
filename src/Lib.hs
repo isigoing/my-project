@@ -144,9 +144,10 @@ someFunc = putStrLn "Hello World"
 anotherFunc :: IO ()
 anotherFunc = putStrLn "This is just another test"
 
-checkForNeighbourAboveAndBelow :: [(Int,Int)]-> (x,y) -> Int
-checkForNeighbourAboveAndBelow list value = r where
-    aboveList = filter (\x -> snd x > (snd value)) list
-    belowList = filter (\x -> snd x < (snd value)) list
-    fullList = belowList ++ [value] ++ aboveList
+checkForNeighbourAboveAndBelow :: [(Int,Int)]-> (Int,Int) -> Int
+checkForNeighbourAboveAndBelow list (x,y) = r where
+    aboveList = filter (\h -> snd h > y) list
+    belowList = filter (\h -> snd h < y) list
+    fullList = belowList ++ [(x,y)] ++ aboveList
+    -- continue here
     r = 42
