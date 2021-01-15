@@ -149,5 +149,21 @@ checkForNeighbourAboveAndBelow list (x,y) = r where
     aboveList = filter (\h -> snd h > y) list
     belowList = filter (\h -> snd h < y) list
     fullList = belowList ++ [(x,y)] ++ aboveList
-    -- continue here
+    sortedList = sortOn snd fullList
+    ret = aboveBelowHelper sortedList
     r = 42
+
+
+aboveBelowHelper :: [(Int,Int)] -> Int-> Bool
+aboveBelowHelper [] _ = False
+aboveBelowHelper (x:xs) size
+    | (snd x)+1 == snd (head xs) && size /= 0 = callHelperHit
+    | (snd x)+1 /= snd (head xs) = callHelperNoHit
+    | (snd x)+1 == snd (head xs) && size == 0 = True
+    | otherwise = False
+    where 
+        hSize = size-1
+        callHelperHit = aboveBelowHelper xs hSize 
+        callHelperNoHit = aboveBelowHelper xs size
+
+-- | Zweite Size nötig?!?!?
