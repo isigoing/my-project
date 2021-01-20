@@ -15,4 +15,4 @@ main = do
     playground <- initiatePlayground input
     print (getMatrix playground)
     playerOnesTurn playground
-    putStrLn "  -------- Thanks for playeeeing!"
+    putStrLn "  -------- Thanks for playing!"
