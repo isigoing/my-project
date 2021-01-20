@@ -137,24 +137,22 @@ decider status
     | otherwise = "continue"
 
 
-someFunc :: IO ()
-someFunc = putStrLn "Hello World"
+-- |
+-- | Checks for Above and Below
+-- |
 
-
-anotherFunc :: IO ()
-anotherFunc = putStrLn "This is just another test"
-
-checkForNeighbourAboveAndBelow :: [(Int,Int)]-> (Int,Int) -> Int
-checkForNeighbourAboveAndBelow list (x,y) = r where
-    aboveList = filter (\h -> fst h > x) list
-    belowList = filter (\h -> fst h < x) list
-    fullList = belowList ++ [(x,y)] ++ aboveList
-    sortedList = sortOn snd fullList
-    ret = aboveBelowHelper sortedList
-    r = 42
-
-
-aboveBelowHelper :: [(Int,Int)] -> Int-> Bool
+checkForNeighbourAboveAndBelow :: [(Int,Int)]-> (Int,Int)-> Int -> String
+checkForNeighbourAboveAndBelow list (x,y) solSize
+    | ret == True = "Hit"
+    | ret == False = "noHit"
+    where
+        aboveList = filter (\h -> fst h > x) list
+        belowList = filter (\h -> fst h < x) list
+        fullList = belowList ++ [(x,y)] ++ aboveList
+        sortedList = sortOn fst fullList
+        ret = aboveBelowHelper sortedList (solSize-1)
+    
+aboveBelowHelper :: [(Int,Int)] -> Int -> Bool
 aboveBelowHelper [] _ = False
 aboveBelowHelper [x] size = if size == 0 then True else False
 aboveBelowHelper (x:y:xs) size
@@ -167,12 +165,59 @@ aboveBelowHelper (x:y:xs) size
         callHelperHit = aboveBelowHelper ([y]++xs) hSize 
         callHelperNoHit = aboveBelowHelper ([y]++xs) size
 
--- | Zweite Size nötig?!?!?
+-- |
+-- | Checks for Left and Right
+-- |
 
-myTest :: [(Int,Int)] -> [(Int,Int)]
-myTest [] = [(0,0)]
-myTest [x] = [(1,1)]
-myTest (x:y:xs)
-    | fst x == 1 = xs
-    | fst x == 2 = [y]
-    | otherwise = [(3,3)]
+checkForNeighbourLeftAndRight :: [(Int,Int)]-> (Int,Int)-> Int -> String
+checkForNeighbourLeftAndRight list (x,y) solSize
+    | ret == True = "Hit"
+    | ret == False = "noHit"
+    where
+        rightList = filter (\h -> snd h > y) list
+        leftList = filter (\h -> snd h < y) list
+        fullList = leftList ++ [(x,y)] ++ rightList
+        sortedList = sortOn snd fullList
+        ret = leftRightHelper sortedList (solSize-1)
+    
+leftRightHelper :: [(Int,Int)] -> Int -> Bool
+leftRightHelper [] _ = False
+leftRightHelper [x] size = if size == 0 then True else False
+leftRightHelper (x:y:xs) size
+    | (snd x)+1 == snd y && size /= 0 = callHelperHit
+    | (snd x)+1 /= snd y = callHelperNoHit
+    | (snd x)+1 == snd y && size == 0 = True
+    | otherwise = False
+    where 
+        hSize = size-1
+        callHelperHit = leftRightHelper ([y]++xs) hSize 
+        callHelperNoHit = leftRightHelper ([y]++xs) size
+
+
+-- |
+-- | Checks for diagonal
+-- |
+
+checkForNeighbourDiagonal :: [(Int,Int)]-> (Int,Int)-> Int -> String
+checkForNeighbourDiagonal list (x,y) solSize
+    | ret == True = "Hit"
+    | ret == False = "noHit"
+    where
+        aboveList = filter (\h -> fst h < x && snd h > y) list
+        belowList = filter (\h -> fst h > x && snd h < y) list
+        fullList = belowList ++ [(x,y)] ++ aboveList
+        sortedList = sortOn fst fullList
+        ret = diagonalHelper sortedList (solSize-1)
+    
+diagonalHelper :: [(Int,Int)] -> Int -> Bool
+diagonalHelper [] _ = False
+diagonalHelper [x] size = if size == 0 then True else False
+diagonalHelper (x:y:xs) size
+    | ((fst x)+1 == (fst y)) && ((snd x)-1 == (snd y)) && (size /= 0) = callHelperHit
+    | (fst x)+1 /= fst y || ((snd x)-1 == (snd y)) = callHelperNoHit
+    | (fst x)+1 == fst y && ((snd x)-1 == (snd y)) && size == 0 = True
+    | otherwise = False
+    where 
+        hSize = size-1
+        callHelperHit = diagonalHelper ([y]++xs) hSize 
+        callHelperNoHit = diagonalHelper ([y]++xs) size
